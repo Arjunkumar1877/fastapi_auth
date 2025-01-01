@@ -1,17 +1,17 @@
-import { Navigate, Outlet, useRoutes } from "react-router-dom"
-import { useWebStore } from "./store/authStore"
+import { useRoutes } from "react-router-dom"
 import Register from "./routes/Register"
 import Login from "./routes/Login"
 import NotFound from "./routes/NotFound"
 import Dashboard from "./routes/Dashboard"
 import Profile from "./routes/Profile"
+import Tasks from "./routes/Tasks"
+import { ProtectedRoute, PublicOnlyRoute } from "./auth/Routes"
+import DashboardLayout from "./components/layout/DashboardLayout"
+import Settings from "./routes/Settings"
 
-
-
-export default function App () {
-  const isAuthenticated = useWebStore((state) => state.token !== null)
-  const protectedRoute = isAuthenticated ? <Outlet /> : <Navigate to="/login" replace/>
-  const publicRoute = !isAuthenticated ? <Outlet /> : <Navigate to="/" replace/>
+export default function App() {
+  const protectedRoute = ProtectedRoute()
+  const publicRoute = PublicOnlyRoute()
 
   const routes = [
     {
@@ -25,9 +25,16 @@ export default function App () {
     {
       path: "/",
       element: protectedRoute,
-        children: [
-          { index: true, element: <Dashboard /> },
-          { path: 'profile', element: <Profile /> },
+      children: [
+        {
+          element: <DashboardLayout />,
+          children: [
+            { index: true, element: <Dashboard /> },
+            { path: 'profile', element: <Profile /> },
+            { path: 'tasks', element: <Tasks /> },
+            { path: 'settings', element: <Settings /> },
+          ]
+        }
       ]
     },
     {

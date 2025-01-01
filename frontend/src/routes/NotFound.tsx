@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@/components/ui/button"; // Replace with your ShadCN button import
+import { Button } from "@/components/ui/button"; 
 import { useNavigate } from "react-router-dom";
 
 const NotFound = () => {

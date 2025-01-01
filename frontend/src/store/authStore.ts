@@ -1,19 +1,24 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { API } from '../api/axios'; 
-import { Token, User } from '../types/auth';
+import API from '../api/axios'; 
+import { User } from '../types/auth';
 
 const initialState = {
-  token: null as Token | null,
+  accessToken: null as string | null, 
+  refreshToken: null as string | null,
   user: null as User | null,
 };
 
 type WebState = {
-  token: Token | null;
+  accessToken: string | null; 
+  refreshToken: string | null;
   user: User | null;
-  setToken: (token: Token | null) => void;
-  clearToken: () => void;
-  getToken: () => Token | null;
+  setAccessToken: (accessToken: string | null) => void; 
+  setRefreshToken: (refreshToken: string | null) => void;
+  clearAccessToken: () => void; 
+  clearRefreshToken: () => void;
+  getAccessToken: () => string | null; 
+  getRefreshToken: () => string | null;
   setUser: (user: User | null) => void;
   clearUser: () => void;
   getUser: () => User | null;
@@ -26,28 +31,31 @@ export const useWebStore = create<WebState>()(
     (set, get) => ({
       ...initialState,
 
-      setToken: (token) => set({ token }),
-      clearToken: () => set({ token: null }),
-      getToken: () => get().token,
+      setAccessToken: (accessToken) => set({ accessToken }), 
+      setRefreshToken: (refreshToken) => set({ refreshToken }),
+      clearAccessToken: () => set({ accessToken: null }), 
+      clearRefreshToken: () => set({ refreshToken: null }),
+      getAccessToken: () => get().accessToken, 
+      getRefreshToken: () => get().refreshToken,
 
       setUser: (user) => set({ user }),
       clearUser: () => set({ user: null }),
       getUser: () => get().user,
 
       fetchUser: async () => {
-        const token = get().token;
-        if (!token) return;
+        const accessToken = get().accessToken; 
+        if (!accessToken) return;
 
         try {
           const response = await API.get('/auth/me');
           set({ user: response.data });
         } catch (error) {
           console.error('Failed to fetch user:', error);
-          set({ user: null, token: null });
+          set({ user: null, accessToken: null }); 
         }
       },
 
-      clearAuth: () => set({ token: null, user: null }),
+      clearAuth: () => set({ accessToken: null, refreshToken: null, user: null }), 
     }),
     {
       name: 'auth-storage',

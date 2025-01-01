@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { RegisterForm } from '../types/auth'
-import { API } from '../api/axios'
-import { useWebStore } from '../store/authStore'
+import API from '../api/axios'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
 
 const Register = () => {
   const navigate = useNavigate()
   const [errors, setErrors] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const { setToken } = useWebStore()
   const [form, setForm] = useState<RegisterForm>({
       first_name: '',
       last_name: '',
@@ -124,14 +124,15 @@ const Register = () => {
                                 ))}
                             </div>
                         )}
-                        <div>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full bg-blue-500 text-white p-2 rounded"
-                            >
-                                {isLoading ? 'Loading...' : 'Register'}
-                            </button>
+                        <div className="flex justify-center">
+                        {!isLoading ? (
+                            <Button type="submit">Register</Button>
+                        ) : (
+                            <Button disabled>
+                            <Loader2 className="animate-spin" />
+                            Please wait
+                            </Button>
+                        )}
                         </div>
                     </form>
                 </div>

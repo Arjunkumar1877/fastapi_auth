@@ -7,6 +7,7 @@ class UserLogin(BaseModel):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str 
 
 class TokenData(BaseModel):
@@ -14,3 +15,6 @@ class TokenData(BaseModel):
 
 class TokenRequest(BaseModel):
     token: str
+
+class RefrestTokenRequest(BaseModel):  
+    refresh_token: str

@@ -1,50 +1,59 @@
-import React from "react";
-import { useWebStore } from "../store/authStore";
-import { Button } from "@/components/ui/button"; 
-import { Card } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import API from "@/api/axios";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TaskAnalytics } from "@/types/task";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
-  const { clearAuth, user } = useWebStore();
-
-  const handleLogout = () => {
-    clearAuth();
-  };
-
-  const navigate = useNavigate();
-
+  const [tasks, setTasks] = useState<TaskAnalytics>();
+  useEffect(() => {
+    const getTaskAnalytics = async () => {
+      try {
+        const response = await API.get<TaskAnalytics>('/tasks/analytics/');
+        setTasks(response.data);
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
+    }
+    getTaskAnalytics();
+  }, []);
+  
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-      <Card className="max-w-md w-full text-center p-8">
-        <h1 className="text-4xl font-bold text-blue-600 mb-4">
-          Welcome, {user?.first_name}!
-        </h1>
-        <p className="text-gray-600 text-lg mb-2">
-          Email: {user?.email}
-        </p>
-        <p className="text-gray-600 text-lg mb-4">
-          Full Name: {user?.first_name} {user?.last_name}
-        </p>
-        <div className="flex items-center gap-4">
-        <Button
-          onClick={() => {
-            navigate("/profile");
-          }}
-          variant="secondary"
-          className="w-full mt-6"
-        >
-          Update Profile
-        </Button>
-        <Button
-          onClick={handleLogout}
-          variant="destructive"
-          className="w-full mt-6"
-        >
-          Logout
-        </Button>
-            
-        </div>
-      </Card>
+    <div className="space-y-4">
+      <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-blue-50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-blue-700">Total Tasks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-900">{tasks?.total_tasks}</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-green-50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-green-700">Completed Tasks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-900">{tasks?.completed_tasks}</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-yellow-50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-yellow-700">Pending Tasks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-900">{tasks?.pending_tasks}</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-orange-50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-orange-700">In Progress Tasks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-900">{tasks?.in_progress_tasks}</div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

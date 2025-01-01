@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
-import { LoginForm } from '../types/auth'
+import { ErrorResponse, LoginForm, LoginResponse } from '../types/auth'
 import { useNavigate } from 'react-router-dom'
-import { API } from '../api/axios'
+import API from '../api/axios'
 import { useWebStore } from '../store/authStore'
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AxiosError } from 'axios'
 
 const Login = () => {
   const [form, setForm] = useState<LoginForm>({
@@ -16,7 +17,7 @@ const Login = () => {
   const navigate = useNavigate()
   const [errors, setErrors] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const { setToken, fetchUser } = useWebStore()
+  const { setAccessToken, fetchUser, setRefreshToken } = useWebStore()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrors([])
@@ -30,17 +31,19 @@ const Login = () => {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const response = await API.post('/auth/login', form) 
+      const response = await API.post<LoginResponse>('/auth/login', form) 
       console.log(response.data)
-      setToken(response.data.access_token)
+      setAccessToken(response.data.access_token)
+      setRefreshToken(response.data.refresh_token)
       fetchUser()
       navigate('/')
-    } catch (error: any) {
-      console.log(error.response.data)
-      if (error.response?.data?.detail) {
-        setErrors([error.response.data.detail]) 
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      console.log(axiosError.response?.data)
+      if (axiosError.response?.data?.detail) {
+        setErrors([axiosError.response.data.detail]);
       } else {
-        setErrors(['An unknown error occurred'])
+        setErrors(['An unknown error occurred']);
       }
     } finally {
       setIsLoading(false)
